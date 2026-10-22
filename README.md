@@ -158,6 +158,25 @@ Use `localhost` consistently for both applications. The Laravel CORS configurati
 
 Restart the frontend after changing `.env.local`.
 
+## Docker / Coolify
+
+`docker-compose.yml` runs the frontend and the Laravel API; PostgreSQL stays external (Neon, Supabase).
+Only the frontend is public: the browser calls `/api` on the same address and Next.js forwards it to the
+`api` service, so CORS and cookies need no extra setup.
+
+| Variable | Purpose |
+|---|---|
+| `APP_KEY` | Laravel key (`php artisan key:generate --show`) |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_SSLMODE` | PostgreSQL connection |
+| `DEMO_PASSWORD` | Password gate (HTTP Basic auth, any user name). Empty: no gate |
+| `SEED_DEMO_DATA` | `true` (default): load the fictional data on start. Needs `APP_ENV=local` and database `seka_laravel_dev` |
+
+On start the API runs the migrations and the demo seeder. Uploaded CVs live in the `cv-storage` volume.
+
+```bash
+docker compose --env-file .env.docker up --build   # then expose port 3000 of the frontend service
+```
+
 ## Recruitment statuses
 
 | API value | Polish label |

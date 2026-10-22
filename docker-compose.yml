@@ -1,0 +1,39 @@
+# Demo deployment (Coolify): Next.js frontend + Laravel API, PostgreSQL outside (Supabase / Neon).
+# Only the frontend is public; it forwards /api/* to the api service.
+services:
+  api:
+    build: ./backend-laravel
+    environment:
+      APP_NAME: "SEKA Recruitment"
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      LOG_CHANNEL: stderr
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      DB_CONNECTION: pgsql
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-seka_laravel_dev}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSLMODE: ${DB_SSLMODE:-require}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+    volumes:
+      - cv-storage:/app/storage/app/private
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    environment:
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+    expose:
+      - "3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  cv-storage:
